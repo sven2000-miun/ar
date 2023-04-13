@@ -242,7 +242,8 @@ const LongForm expansion_matching(NonDictWords &nonDictWords,
 }
 
 #include <regex>
-const std::regex r("([a-z](?=[A-Z]))|_");
+const std::regex
+    r("_|(A-Z)(?=([A-Z][a-z]))|([A-Z](?=[a-z]+))|[a-z](?=[A-Z])");
 
 const void split_regex(std::string ident, AllMatches *matches) {
   Lmatch retvec;
@@ -261,7 +262,6 @@ const void split_regex(std::string ident, AllMatches *matches) {
     if (match_str != "_") {
       match_pos += 1;
     }
-
     auto substr = ident.substr(prev, match_pos - prev);
     std::transform(substr.begin(), substr.end(), substr.begin(),
                    [](const unsigned char &c) { return std::tolower(c); });
@@ -269,6 +269,7 @@ const void split_regex(std::string ident, AllMatches *matches) {
         std::remove_if(substr.begin(), substr.end(),
                        [](const unsigned char &s) { return !std::isalnum(s); }),
         substr.end());
+    std::cout << substr << std::endl;
     matches->insert({substr, prev, match_pos});
 
     if (match_str == "_") {
@@ -480,11 +481,13 @@ const std::string internal_do_ar(const std::string &token) {
 }
 
 const std::string ar::do_ar(std::string token) {
-  // token.erase(
-  //     std::remove_if(token.begin(), token.end(),
-  //                    [](const unsigned char &s) { return !std::isalnum(s);
-  //                    }),
-  //     token.end());
+  token.erase(std::remove_if(token.begin(), token.end(),
+                             [](const unsigned char &s) {
+                               if (s == '_')
+                                 return false;
+                               return !std::isalnum(s);
+                             }),
+              token.end());
   // std::transform(token.begin(), token.end(), token.begin(),
   //                [](const unsigned char &c) { return std::tolower(c); });
   return internal_do_ar(token);
