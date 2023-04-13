@@ -8,4 +8,4 @@ Dictionaries for the project can be found [here](https://www.github.com/sven2000
 
 The methodology used in the code is partly based on the methodology from this paper: [LINSEN][1]
 
-[1]: 10.1109/ICSM.2012.6405277
+[1]: https://ieeexplore.ieee.org/document/6405277
