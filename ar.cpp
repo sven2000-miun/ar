@@ -243,7 +243,7 @@ const LongForm expansion_matching(NonDictWords &nonDictWords,
 
 #include <regex>
 const std::regex
-    r("_|(A-Z)(?=([A-Z][a-z]))|([A-Z](?=[a-z]+))|[a-z](?=[A-Z])");
+    r("([A-Z][a-z]+)|([A-Z]{2,}(?=[A-Z][a-z]))|([A-Z]{2,})|([a-z]+)");
 
 const void split_regex(std::string ident, AllMatches *matches) {
   Lmatch retvec;
@@ -257,25 +257,15 @@ const void split_regex(std::string ident, AllMatches *matches) {
   int prev = 0;
   for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
     std::smatch match = *i;
-    std::string match_str = match.str();
+    std::string substr = match.str();
     int match_pos = match.position();
-    if (match_str != "_") {
-      match_pos += 1;
-    }
-    auto substr = ident.substr(prev, match_pos - prev);
     std::transform(substr.begin(), substr.end(), substr.begin(),
                    [](const unsigned char &c) { return std::tolower(c); });
     substr.erase(
         std::remove_if(substr.begin(), substr.end(),
                        [](const unsigned char &s) { return !std::isalnum(s); }),
         substr.end());
-    std::cout << substr << std::endl;
-    matches->insert({substr, prev, match_pos});
-
-    if (match_str == "_") {
-      match_pos += 1;
-    }
-    prev = match_pos;
+    matches->insert({substr, match_pos, match_pos + (int) substr.length()});
   }
   auto str = ident.substr(prev, ident.length());
 
