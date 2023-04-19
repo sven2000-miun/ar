@@ -243,7 +243,7 @@ const LongForm expansion_matching(NonDictWords &nonDictWords,
 
 #include <regex>
 const std::regex
-    r("([A-Z][a-z0-9]+)|([A-Z0-9]{2,}(?=[A-Z][a-z]))|([A-Z0-9]{2,})|([a-z0-1]+)");
+    r("([A-Z][a-z0-9]+)|([A-Z0-9]+(?=[A-Z][a-z]))|([A-Z0-9]+)|([a-z0-1]+)");
 
 const void split_regex(std::string ident, AllMatches *matches) {
   Lmatch retvec;
