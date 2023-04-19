@@ -265,7 +265,7 @@ const void split_regex(std::string ident, AllMatches *matches) {
         std::remove_if(substr.begin(), substr.end(),
                        [](const unsigned char &s) { return !std::isalnum(s); }),
         substr.end());
-    matches->insert({substr, match_pos, match_pos + (int) substr.length()});
+    matches->insert({substr, match_pos, match_pos + (int)substr.length()});
   }
   auto str = ident.substr(prev, ident.length());
 
@@ -471,14 +471,48 @@ const std::string internal_do_ar(const std::string &token) {
 }
 
 const std::string ar::do_ar(std::string token) {
-  token.erase(std::remove_if(token.begin(), token.end(),
-                             [](const unsigned char &s) {
-                               if (s == '_')
-                                 return false;
-                               return !std::isalnum(s);
-                             }),
-              token.end());
-  // std::transform(token.begin(), token.end(), token.begin(),
-  //                [](const unsigned char &c) { return std::tolower(c); });
-  return internal_do_ar(token);
+
+  // Split on dot
+  auto line = token;
+  std::vector<string> split_vec;
+  string delim = ".";
+  size_t pos = 0;
+  std::string str;
+  while ((pos = line.find(delim)) != std::string::npos) {
+    str = line.substr(0, pos);
+    line.erase(0, pos + delim.length());
+    split_vec.push_back(str);
+  }
+  split_vec.push_back(line);
+
+  // Go through each new word
+  std::vector<string> retvec;
+  for (auto each : split_vec) {
+
+    each.erase(std::remove_if(each.begin(), each.end(),
+                              [](const unsigned char &s) {
+                                if (s == '_')
+                                  return false;
+                                return !std::isalnum(s);
+                              }),
+               each.end());
+
+    retvec.push_back(internal_do_ar(each));
+  }
+
+  // insert the dots
+  size_t count = 0;
+  std::stringstream retToken;
+  for (auto &each : retvec) {
+    if (each == EOS || each == NULLS) {
+      continue;
+    }
+    retToken << each;
+
+    count += 1;
+    if (count != retvec.size())
+      retToken << ".";
+  }
+
+  return retToken.str();
 }
